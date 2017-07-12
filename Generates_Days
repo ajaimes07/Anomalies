@@ -1,0 +1,40 @@
+% Creates a variable named days
+% Days is an array that contains 365 matrices of 568 x 668 x 33 (LAT x LONG x YEARS)
+
+
+mydir = 'H:\TWO\DATA\DAYMET\Tmax\merged';
+lst = dir(mydir);
+
+% file list:
+flst = {};
+for k = 1:length(lst)
+    
+    if strcmp(lst(k).name,'.') || strcmp(lst(k).name,'..')
+        continue;
+    end
+    
+    flst{end+1} = lst(k).name;
+        
+end
+
+
+
+
+days  = cell(1,365);
+years = cell(1,length(flst));
+for k=1:length(flst)
+    
+    disp(k);
+    
+    d = load([mydir filesep flst{k}]);
+    
+    tmp = flst{k};
+    ind = find(tmp=='_');
+    years{k} = tmp(ind+1:end-4);
+    
+    for j = 1:365
+        
+        days{j}(:,:,k) = d.par(:,:,j);         
+    end
+end
+
