@@ -1,0 +1,47 @@
+%% 4. Spatilly merge data at different tiles
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear
+clc
+cd H:\TWO\DATA\DAYMET\Tmax\data
+list0 = ls('H:/TWO/DATA/DAYMET/Tmax/data/*.nc');
+
+parname = 'Tmax';
+N = 33;
+
+for k = 1:1
+     cd H:\TWO\DATA\DAYMET\Tmax\data
+    fprintf('%i out of %i\n',k,N);
+    
+    ind = k + (1:33:33*9) - 1;
+    names = list0(ind,:);
+
+    filename = cell(length(ind),1);
+    for j=1:length(ind)
+        filename{j} = names(j,:);
+    end
+    
+    % spatially merge the different tiles
+    [par, lon, lat, x, y] = daymetMerge(filename, parname);
+    %par(isnan(par))=-999;
+    
+    
+    namesave = [parname '_' names(1,12:15)];
+    
+    figure
+    avyear= mean(par,3);
+    imagesc(lon(:,1),lat(1,:),avyear);
+    set(gca,'yDir','normal');
+    colorbar
+%     cmp = colormap;
+%     cmp(1,:) = [1 1 1];
+   % colormap(cmp)
+    %caxis([0 200])
+    xlabel('longitude')
+    ylabel('latitude')
+    title (namesave,'interpreter','none')
+    cd H:\TWO\DATA\DAYMET\Tmax\merged
+    save (namesave, 'par', 'x', 'y', 'lat', 'lon','avyear')
+    savefig (namesave)
+    close all
+end
+
