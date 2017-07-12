@@ -1,0 +1,126 @@
+function anomaliesdriver()
+
+
+%{
+mydir = 'Tmax';
+mydir = 'Tmax';
+lst = dir(mydir);
+
+% file list:
+flst = {};
+for k = 1:length(lst)
+    
+    if strcmp(lst(k).name,'.') || strcmp(lst(k).name,'..')
+        continue;
+    end
+    
+    flst{end+1} = lst(k).name;
+        
+end
+
+
+
+
+days  = cell(1,365);
+years = cell(1,length(flst));
+for k=1:length(flst)
+    
+    disp(k);
+    
+    d = load([mydir filesep flst{k}]);
+    
+    tmp = flst{k};
+    ind = find(tmp=='_');
+    years{k} = tmp(ind+1:end-4);
+    
+    for j = 1:365
+        
+        days{j}(:,:,k) = d.par(:,:,j);         
+    end
+end
+
+
+
+
+medians = cell(1,365);
+means   = cell(1,365);
+for k = 1:365
+    
+    medians{k} = median(days{k},3);    
+    means{k}   = mean(days{k},3);    
+    
+end
+
+
+
+% for percentile:
+%pctl = @(v,p) interp1(linspace(0.5/length(v), 1-0.5/length(v), length(v))', sort(v), p*0.01, 'spline');
+
+day1 = days{1};
+%}
+
+%load days
+pc1 = 90;
+pc2 = 10;
+%  load day1
+
+for o=1:365
+    day=days{o};
+media1 = median(day,3);    
+mean1  = mean(day,3);    
+
+x1 = mypercentile(day,pc1,3);
+x2 = mypercentile(day,pc2,3);
+
+
+anom1 = inf(size(day));
+anom1(isnan(day)) = NaN;
+
+
+for k=1:size(day,3)   
+    
+    ind1 = day(:,:,k) > x1;
+    tmp1  = squeeze(day(:,:,k));
+    tmp1(~ind1) = inf;
+    
+    
+    ind2 = day(:,:,k) < x2;
+    tmp2  = squeeze(day(:,:,k));
+    tmp2(~ind2)=inf;
+    
+   
+    tmp = tmp1;
+    tmp(ind2) = tmp2(ind2);
+    
+    anom1(:,:,k) = tmp;
+    
+end
+
+
+anom1(isnan(day)) = NaN;
+
+
+
+cx = [1,25];
+cmapjet = colormap('jet');
+close;
+
+figure('position',[200       50       1043         773]);
+uicontrol('style','pushbutton','units','normalized','position',[.6 .8 .05 .05],'string','<','callback',{@leftmove,day, anom1,cx,cmapjet,pc1,pc2});
+uicontrol('style','pushbutton','units','normalized','position',[.7 .8 .05 .05],'string','>','callback',{@rightmove,day, anom1,cx,cmapjet,pc1,pc2});
+
+if 0
+    leftmove
+    rightmove
+end
+
+
+for k=1:size(day,3)
+    
+    plotanomaliesk(day, anom1,cx,cmapjet,pc1,pc2,k,o);
+    
+end
+
+
+end
+end
