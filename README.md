@@ -1,7 +1,7 @@
 # Anomalies
 MATLAB scripts to estimate anomalies using extreme value theory. 
 1) DOWNDATA_AND_MERGE_V4.m
-Download Daymet data of different year at different tiles
+Download Daymet data from different years and tiles.
 Spatilly merge data at different tiles using the function daymetMerge.m
 A figure is generated to verify tiles have been merged correctly 
 
